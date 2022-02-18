@@ -467,7 +467,7 @@ sandbox () {
         goal_helper wallet -f unencrypted-default-wallet > /dev/null 2>&1
 
 		FUNDED_ACCOUNTS_OUTPUT=$(goal_helper account list)
-      	for acct in $(echo "$ACCOUNTS_OUTPUT" | cut -f 3 |tr -s ' '); do
+      	for acct in $(echo "$FUNDED_ACCOUNTS_OUTPUT" | cut -f 3 |tr -s ' '); do
       	  FUNDED_ACCOUNTS+=($acct)
       	done
 
@@ -487,9 +487,18 @@ sandbox () {
 		  echo $KEY > "_keys/${acct}.key"
         done
 
-        printc $default "~$ ${blue}./sandbox ${teal}goal account list"
-		echo "$ACCOUNTS_OUTPUT"
-
+        sandbox copyTo ./contract/approval.teal 
+        sandbox copyTo ./contract/clear.teal 
+  
+        goal_helper app create \
+  			  --creator ${FUNDED_ACCOUNTS[0]}\
+  			  --global-byteslices 0 \
+  			  --global-ints 1 \
+  			  --local-byteslices 0  \
+  			  --local-ints 6 \
+  			  --approval-prog approval.teal \
+  			  --clear-prog clear.teal
+  
 
 
       else

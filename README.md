@@ -2,16 +2,10 @@
 
 ## Run Fracture DAO sandbox
 
-Create the sandbox, create new funded accounts and exports keys to those accounts
+Create the sandbox, create new funded accounts and exports keys to those accounts and deploys contract
 
 ```sh
 ./sandbox up
-```
-
-Deploy contract
-
-```sh
-./sandbox deploy
 ```
 
 ## Development Setup

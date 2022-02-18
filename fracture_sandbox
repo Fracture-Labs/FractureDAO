@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash 
 set -euo pipefail
 
 #####################
@@ -467,9 +467,14 @@ sandbox () {
         goal_helper wallet -f unencrypted-default-wallet > /dev/null 2>&1
 
 		FUNDED_ACCOUNTS_OUTPUT=$(goal_helper account list)
+		echo "FUNDED ACCOUNT OUTPUT: " 
+		echo $FUNDED_ACCOUNTS_OUTPUT 
       	for acct in $(echo "$FUNDED_ACCOUNTS_OUTPUT" | cut -f 3 |tr -s ' '); do
+		  echo "FUNDED ACCOUNT: " 
+		  echo $acct
       	  FUNDED_ACCOUNTS+=($acct)
       	done
+
 
         statusline "Creating accounts"
         printc $default "~$ ${blue}./sandbox ${teal}goal account new"
@@ -482,7 +487,7 @@ sandbox () {
 		statusline "Funding all accounts"
         ACCOUNTS_OUTPUT=$(goal_helper account list)
         for acct in $(echo "$ACCOUNTS_OUTPUT" | cut -f 3 |tr -s ' '); do
-		  goal_helper clerk send -a 200000 -t $acct -f ${FUNDED_ACCOUNTS[0]} 
+		  goal_helper clerk send -a 200000 -t $acct -f ${FUNDED_ACCOUNTS[0]}
 		  KEY=$(goal_helper account export -a $acct | cut -d ' ' -f6-30 | sed 's/^.//' | sed 's/.//' )
 		  echo $KEY > "_keys/${acct}.key"
         done
@@ -491,7 +496,7 @@ sandbox () {
         sandbox copyTo ./contract/clear.teal 
   
         goal_helper app create \
-  			  --creator ${FUNDED_ACCOUNTS[0]}\
+  			  --creator $FUNDED_ACCOUNTS[0]\
   			  --global-byteslices 0 \
   			  --global-ints 1 \
   			  --local-byteslices 0  \

@@ -1,5 +1,19 @@
 # FractureDAO
 
+## Run Fracture DAO sandbox
+
+Create the sandbox, create new funded accounts and exports keys to those accounts
+
+```sh
+./sandbox up
+```
+
+Deploy contract
+
+```sh
+./sandbox deploy
+```
+
 ## Development Setup
 
 This repo requires Python 3.6 or higher. We recommend you use a Python virtual environment to install
@@ -23,7 +37,7 @@ pip3 install pyteal
 pip3 install py-algorand-sdk
 ```
 
-Run E2E:
+Using Python to run E2E:
 
 ```sh
 # compiles the contracts

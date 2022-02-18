@@ -399,7 +399,6 @@ sandbox () {
       fi
       CONFIG_FILE="$SANDBOX_DIR/config.$NEW_CONFIG"
 
-      # Verify config exists
       if [ ! -f "$CONFIG_FILE" ]; then
         SANDBOX_CONFIG_OPTIONS=$(ls "$SANDBOX_DIR"/config.* | sed 's/^.*config\./ /'| paste -sd',' -)
         err "Could not find config file for '$NEW_CONFIG'.\nValid options:$SANDBOX_CONFIG_OPTIONS"
@@ -464,9 +463,10 @@ sandbox () {
 		  echo $KEY > "${acct}.key"
         done
 
-        statusline "Available accounts"
         printc $default "~$ ${blue}./sandbox ${teal}goal account list"
 		echo "$ACCOUNTS_OUTPUT"
+
+
 
       else
         ################################
@@ -556,6 +556,19 @@ EOF
       statusline "Stopping sandbox containers..."
       dc stop -t 0
       ;;
+
+    deploy)
+      sandbox copyTo ./contract/approval.teal 
+      sandbox copyTo ./contract/clear.teal 
+      goal_helper app create \
+			  --creator RVHFAULBZJQOVAJGC4ZJJ2WV33PCWGUVGUQC6NGUM2JQXCIZKASJN2XR2U \
+			  --global-byteslices 0 \
+			  --global-ints 1 \
+			  --local-byteslices 0  \
+			  --local-ints 6 \
+			  --approval-prog approval.teal \
+			  --clear-prog clear.teal
+	  ;;
 
     restart|reset)
       # Make sure fast-catchup runs when resetting a real network.

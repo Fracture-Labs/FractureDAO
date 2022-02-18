@@ -152,12 +152,14 @@ def main() :
 
     print("--------------------------------------------")
     print("Delegatee OptIn application......")
-    print("Trustees: ", trustees)
 
     # new_wot(algod_client, app_id, threshold, trustees, delegatee, delegatee_sk)
 
     # read local state of application
     print("Delegatee local state:", read_local_state(algod_client, delegatee, app_id))
+
+    print("--------------------------------------------")
+    print("Signatures......")
 
     # trustee0 signs for reveal
     req_kfrags(algod_client, app_id, delegatee, trustee0, trustee0_sk)

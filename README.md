@@ -7,19 +7,27 @@ the required dependencies.
 
 Set up venv (one time):
 
-- `python3 -m venv venv`
+- `python3 -m venv .venv`
 
 Active venv:
 
-- `. venv/bin/activate` (if your shell is bash/zsh)
-- `. venv/bin/activate.fish` (if your shell is fish)
+- `. .venv/bin/activate` (if your shell is bash/zsh)
+- `. .venv/bin/activate.fish` (if your shell is fish)
 
-Install dependencies:
+Install:
 
-- `pip install -r requirements.txt`
+```sh
+# use the following install latest release of pyteal
+pip3 install pyteal
+# install the Algorand python SDK
+pip3 install py-algorand-sdk
+```
 
-Run tests:
+Run E2E:
 
-- First, start an instance of [sandbox](https://github.com/algorand/sandbox) (requires Docker): `./sandbox up nightly`
-- `pytest`
-- When finished, the sandbox can be stopped with `./sandbox down`
+```sh
+# compiles the contracts
+python3 -m contract.contract
+# Deploy and set up wot and approvals
+python3 -m contract.deploy
+```

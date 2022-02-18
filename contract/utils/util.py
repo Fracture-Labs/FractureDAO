@@ -3,6 +3,7 @@ import base64
 
 from algosdk.kmd import KMDClient
 from algosdk import algod
+from algosdk import account 
 from algosdk.future.transaction import *
 
 KMD_ADDRESS = "http://localhost:4002"
@@ -10,6 +11,9 @@ KMD_TOKEN = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
 KMD_WALLET_NAME = "unencrypted-default-wallet"
 KMD_WALLET_PASSWORD = ""
+
+def create_and_fund_account():
+    private_key, address = account.generate_account()
 
 def get_accounts():
     kmd = KMDClient(KMD_TOKEN, KMD_ADDRESS)

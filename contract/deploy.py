@@ -3,6 +3,7 @@ import os
 
 from algosdk.future.transaction import *
 from algosdk.v2client import algod
+from algosdk import mnemonic
 from pyteal import *
 from .utils.util import  *
 
@@ -117,56 +118,55 @@ def main() :
 
     path = os.path.dirname(os.path.abspath(__file__))
 
-    # compile program to TEAL assembly
-    with open(os.path.join(path, "./approval.teal"), "r") as f:
-        approval_program_teal = f.read()
-
-
-    # compile program to TEAL assembly
-    with open(os.path.join(path, "./clear.teal"), "r") as f:
-        clear_state_program_teal = f.read()
-
-    # compile program to binary
-    approval_program_compiled = compile_program(algod_client, approval_program_teal)
-            
-    # compile program to binary
-    clear_state_program_compiled = compile_program(algod_client, clear_state_program_teal)
-
-    print("--------------------------------------------")
-    print("Deploying Fracture DAO ......")
-    
-    # define sender as creator
-    admin, sk = get_accounts()[0]
-
-    # create new application
-    app_id = 7
-    #app_id = create_app(algod_client, approval_program_compiled, clear_state_program_compiled, global_schema, local_schema, admin, sk)
-
-    print("Global state:", read_global_state(algod_client, admin, app_id))
-
+    admin, admin_sk = get_accounts()[0]
     trustee0, trustee0_sk = get_accounts()[1]
     trustee1, trustee1_sk  = get_accounts()[2]
-    trustees = [trustee0, trustee1]
-    threshold = 2
-    delegatee, delegatee_sk = get_accounts()[0]
+    print("Freddie address: ", admin, " and sk: ", admin_sk)
 
-    print("--------------------------------------------")
-    print("Delegatee OptIn application......")
+    # # compile program to TEAL assembly
+    # with open(os.path.join(path, "./approval.teal"), "r") as f:
+    #     approval_program_teal = f.read()
 
-    # new_wot(algod_client, app_id, threshold, trustees, delegatee, delegatee_sk)
 
-    # read local state of application
-    print("Delegatee local state:", read_local_state(algod_client, delegatee, app_id))
+    # # compile program to TEAL assembly
+    # with open(os.path.join(path, "./clear.teal"), "r") as f:
+    #     clear_state_program_teal = f.read()
 
-    print("--------------------------------------------")
-    print("Signatures......")
+    # # compile program to binary
+    # approval_program_compiled = compile_program(algod_client, approval_program_teal)
+    #         
+    # # compile program to binary
+    # clear_state_program_compiled = compile_program(algod_client, clear_state_program_teal)
 
-    # trustee0 signs for reveal
-    req_kfrags(algod_client, app_id, delegatee, trustee0, trustee0_sk)
-    print("Delegatee local state after 1 sig:", read_local_state(algod_client, delegatee, app_id))
+    # print("--------------------------------------------")
+    # print("Deploying Fracture DAO ......")
+    # 
+    # # create new application
+    # app_id = create_app(algod_client, approval_program_compiled, clear_state_program_compiled, global_schema, local_schema, admin, admin_sk)
 
-    # trustee1 signs for reveal
-    req_kfrags(algod_client, app_id, delegatee, trustee1, trustee1_sk)
-    print("Delegatee local state after 1 sig:", read_local_state(algod_client, delegatee, app_id))
+    # print("Global state:", read_global_state(algod_client, admin, app_id))
+
+    # trustees = [trustee0, trustee1]
+    # threshold = 2
+    # delegatee, delegatee_sk = get_accounts()[0]
+
+    # print("--------------------------------------------")
+    # print("Delegatee OptIn application......")
+
+    # # new_wot(algod_client, app_id, threshold, trustees, delegatee, delegatee_sk)
+
+    # # read local state of application
+    # print("Delegatee local state:", read_local_state(algod_client, delegatee, app_id))
+
+    # print("--------------------------------------------")
+    # print("Signatures......")
+
+    # # trustee0 signs for reveal
+    # req_kfrags(algod_client, app_id, delegatee, trustee0, trustee0_sk)
+    # print("Delegatee local state after 1 sig:", read_local_state(algod_client, delegatee, app_id))
+
+    # # trustee1 signs for reveal
+    # req_kfrags(algod_client, app_id, delegatee, trustee1, trustee1_sk)
+    # print("Delegatee local state after 1 sig:", read_local_state(algod_client, delegatee, app_id))
     
 main()

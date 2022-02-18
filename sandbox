@@ -6,6 +6,7 @@ SANDBOX_DIR=$PARENT_DIR/_sandbox
 if [ ! -d "$SANDBOX_DIR" ]; then
     echo "Pulling sandbox..."
     git clone https://github.com/algorand/sandbox.git $SANDBOX_DIR
+	cp ./fracture_sandbox $SANDBOX_DIR/sandbox
 fi
 
 $SANDBOX_DIR/sandbox "$@"

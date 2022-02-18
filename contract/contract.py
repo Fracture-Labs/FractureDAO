@@ -1,10 +1,14 @@
 from pyteal import *
+import os
 
+# Global state 
+# - totalApproved (int)
 
-# Delegatee account local state
-# - NumOfTrustees
-# - Threshold 
-# - Trustee_address: Trustee_approval_status (unapproved: UInt(1), approved: UInt(2))
+# Local state 
+# Delegatee account (6 int)
+# - NumOfTrustees (int)
+# - Threshold (int) 
+# - Trustee_address (max 4): Trustee_approval_status (unapproved: Int(1), approved: Int(2)) (int)
 
 def approval_program():
     
@@ -16,9 +20,9 @@ def approval_program():
 
     # Ensure trustee has not approved before
     # get(delegatee_account, key_of_sender_aka_trustee)
-    # Note: if the key is not there, UInt(0) is returned so we cannot initialise it as UInt(0) 
-    ensure_trustee_unapproved = UInt(1) == App.localGet(Txn.accounts[1], Txn.accounts[0])
-    ensure_unapproved = UInt(1) == App.localGet(Txn.accounts[1], Txn.accounts[0])
+    # Note: if the key is not there, Int(0) is returned so we cannot initialise it as UInt(0) 
+    ensure_trustee_unapproved = Int(1) == App.localGet(Txn.accounts[1], Txn.accounts[0])
+    ensure_unapproved = Int(1) == App.localGet(Txn.accounts[1], Txn.accounts[0])
     num_of_approved_trustees = App.localGet(Txn.accounts[1], Bytes("Approved"))
     threshold = App.localGet(Txn.accounts[1], Bytes("Threshold"))
     g_approved = App.globalGet(Bytes("totalApproved"))
@@ -33,13 +37,13 @@ def approval_program():
         # Ensure this account has not been approved
         Assert(ensure_unapproved),
         # Store state to approve the account
-        App.localPut(Txn.accounts[1], Txn.accounts[0], UInt(2)),
+        App.localPut(Txn.accounts[1], Txn.accounts[0], Int(2)),
         # Store state of new total approved trustees 
         new_num_of_approved_trustees.store(num_of_approved_trustees + Int(1)),
         App.localPut(Txn.accounts[1], Bytes("Approved"), new_num_of_approved_trustees.load()),
         # Update global state if it has been approved
-        If(new_num_of_approved_trustees >= threshold),
-        Then(App.globalPut(Bytes("totalApproved"), g_approved.load() + Int(1))),
+        If(new_num_of_approved_trustees.load() >= threshold)
+        .Then(App.globalPut(Bytes("totalApproved"), g_approved + Int(1))),
         Approve(),
     )
 
@@ -57,26 +61,27 @@ def approval_program():
     i = ScratchVar(TealType.uint64)
     on_optIn = Seq(
         Assert(Txn.accounts.length() > Int(0)),
-        Assert(Txn.application_args[0] <= Txn.accounts.length()),
+        # Threshold for approval
+        Assert(Btoi(Txn.application_args[0]) <= Txn.accounts.length()),
         # Loop through all the foreign accounts (aka trustees)
-        [i.store(Int(1)),
-        While(i.load() < Txn.accounts.length()+1 ).Do(Seq([
-        # Set Approved state as unapproved UInt(1)
-        App.localPut(Txn.accounts[0], Txn.accounts[i], UInt(1)),
+        i.store(Int(1)),
+        While(i.load() < Txn.accounts.length()+Int(1) ).Do(Seq([
+        # Set Approved state as unapproved Int(1)
+        App.localPut(Txn.accounts[0], Txn.accounts[i.load()], Int(1)),
         i.store(i.load() + Int(1))
-        ]))],
+        ])),
         # Set NumOfTrustees given
         App.localPut(Txn.accounts[0], Bytes("NumOfTrustees"), Txn.accounts.length()),
         # Set Threshold required to approve kfrags 
-        App.localPut(Txn.accounts[0], Bytes("Threshold"), Txn.application_args[0]),
-        App.localPut(Txn.accounts[0], Bytes("Approved"), UInt(0)),
+        App.localPut(Txn.accounts[0], Bytes("Threshold"), Btoi(Txn.application_args[0])),
+        App.localPut(Txn.accounts[0], Bytes("Approved"), Int(0)),
         Approve(),
     )
 
     program = Cond(
         [Txn.application_id() == Int(0), on_create],
         [Txn.on_completion() == OnComplete.NoOp, on_call],
-        [Txn.on_completion() == OnComplete.OptIn, on_optin],
+        [Txn.on_completion() == OnComplete.OptIn, on_optIn],
         [
             Or(
                 Txn.on_completion() == OnComplete.CloseOut,
@@ -88,17 +93,25 @@ def approval_program():
 
     return compileTeal(program, Mode.Application, version=5)
 
-
 def clear_state_program():
-    return Approve()
+   program = Approve()
+   # Mode.Application specifies that this is a stateful smart contract
+   return compileTeal(program, Mode.Application, version=5)
+
+path = os.path.dirname(os.path.abspath(__file__))
 
 
-if __name__ == "__main__":
-    with open("fractureDAO.teal", "w") as f:
-        compiled = compileTeal(approval_program(), mode=Mode.Application, version=5)
-        f.write(compiled)
+# compile program to TEAL assembly
+with open(os.path.join(path, "./approval.teal"), "w") as f:
+    approval_program_teal = approval_program()
+    f.write(approval_program_teal)
 
-    with open("auction_clear_state.teal", "w") as f:
-        compiled = compileTeal(clear_state_program(), mode=Mode.Application, version=5)
-        f.write(compiled)
- 
+
+    # compile program to TEAL assembly
+with open(os.path.join(path, "./clear.teal"), "w") as f:
+    clear_state_program_teal = clear_state_program()
+    f.write(clear_state_program_teal)
+    
+print(approval_program())
+print(clear_state_program())
+

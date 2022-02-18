@@ -1,0 +1,134 @@
+#pragma version 5
+txn ApplicationID
+int 0
+==
+bnz main_l15
+txn OnCompletion
+int NoOp
+==
+bnz main_l10
+txn OnCompletion
+int OptIn
+==
+bnz main_l6
+txn OnCompletion
+int CloseOut
+==
+txn OnCompletion
+int UpdateApplication
+==
+||
+bnz main_l5
+err
+main_l5:
+int 0
+return
+main_l6:
+txn NumAccounts
+int 0
+>
+assert
+txna ApplicationArgs 0
+btoi
+txn NumAccounts
+<=
+assert
+int 1
+store 1
+main_l7:
+load 1
+txn NumAccounts
+int 1
++
+<
+bnz main_l9
+txna Accounts 0
+byte "NumOfTrustees"
+txn NumAccounts
+app_local_put
+txna Accounts 0
+byte "Threshold"
+txna ApplicationArgs 0
+btoi
+app_local_put
+txna Accounts 0
+byte "Approved"
+int 0
+app_local_put
+int 1
+return
+main_l9:
+txna Accounts 0
+load 1
+txnas Accounts
+int 1
+app_local_put
+load 1
+int 1
++
+store 1
+b main_l7
+main_l10:
+global GroupSize
+int 1
+==
+assert
+txna ApplicationArgs 0
+byte "reqKfrags"
+==
+bnz main_l12
+err
+main_l12:
+txn NumAccounts
+int 1
+==
+assert
+int 1
+txna Accounts 1
+txna Accounts 0
+app_local_get
+==
+assert
+int 1
+txna Accounts 1
+txna Accounts 0
+app_local_get
+==
+assert
+txna Accounts 1
+txna Accounts 0
+int 2
+app_local_put
+txna Accounts 1
+byte "Approved"
+app_local_get
+int 1
++
+store 0
+txna Accounts 1
+byte "Approved"
+load 0
+app_local_put
+load 0
+txna Accounts 1
+byte "Threshold"
+app_local_get
+>=
+bnz main_l14
+main_l13:
+int 1
+return
+main_l14:
+byte "totalApproved"
+byte "totalApproved"
+app_global_get
+int 1
++
+app_global_put
+b main_l13
+main_l15:
+byte "totalApproved"
+int 0
+app_global_put
+int 1
+return

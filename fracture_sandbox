@@ -373,6 +373,25 @@ sandbox () {
     fi
   }
 
+  # Deploys
+  deploy () {
+      sandbox copyTo ./contract/approval.teal 
+      sandbox copyTo ./contract/clear.teal 
+	  ACCOUNTS_OUTPUT=$(goal_helper account list)
+      for acct in $(echo "$ACCOUNTS_OUTPUT" | cut -f 3 |tr -s ' '); do
+        ACCOUNTS+=($acct)
+      done
+
+      goal_helper app create \
+			  --creator ${ACCOUNTS[0]}\
+			  --global-byteslices 0 \
+			  --global-ints 1 \
+			  --local-byteslices 0  \
+			  --local-ints 6 \
+			  --approval-prog approval.teal \
+			  --clear-prog clear.teal
+  }
+
   # Start the algorand node
   up () {
       FRESH_INSTALL=1
@@ -447,20 +466,25 @@ sandbox () {
         #####################
         goal_helper wallet -f unencrypted-default-wallet > /dev/null 2>&1
 
-        # statusline "Creating accounts"
-        # printc $default "~$ ${blue}./sandbox ${teal}goal account new"
-        # goal_helper account new
-        # goal_helper account new
-        # goal_helper account new
-        # goal_helper account new
-        # goal_helper account new
+		FUNDED_ACCOUNTS_OUTPUT=$(goal_helper account list)
+      	for acct in $(echo "$ACCOUNTS_OUTPUT" | cut -f 3 |tr -s ' '); do
+      	  FUNDED_ACCOUNTS+=($acct)
+      	done
 
+        statusline "Creating accounts"
+        printc $default "~$ ${blue}./sandbox ${teal}goal account new"
+        goal_helper account new
+        goal_helper account new
+        goal_helper account new
+        goal_helper account new
+        goal_helper account new
+
+		statusline "Funding all accounts"
         ACCOUNTS_OUTPUT=$(goal_helper account list)
-        statusline "Funding all accounts"
         for acct in $(echo "$ACCOUNTS_OUTPUT" | cut -f 3 |tr -s ' '); do
-		  # goal_helper clerk send -a 100000 -t $acct -f RVHFAULBZJQOVAJGC4ZJJ2WV33PCWGUVGUQC6NGUM2JQXCIZKASJN2XR2U
+		  goal_helper clerk send -a 200000 -t $acct -f ${FUNDED_ACCOUNTS[0]} 
 		  KEY=$(goal_helper account export -a $acct | cut -d ' ' -f6-30 | sed 's/^.//' | sed 's/.//' )
-		  echo $KEY > "${acct}.key"
+		  echo $KEY > "_keys/${acct}.key"
         done
 
         printc $default "~$ ${blue}./sandbox ${teal}goal account list"
@@ -558,16 +582,7 @@ EOF
       ;;
 
     deploy)
-      sandbox copyTo ./contract/approval.teal 
-      sandbox copyTo ./contract/clear.teal 
-      goal_helper app create \
-			  --creator RVHFAULBZJQOVAJGC4ZJJ2WV33PCWGUVGUQC6NGUM2JQXCIZKASJN2XR2U \
-			  --global-byteslices 0 \
-			  --global-ints 1 \
-			  --local-byteslices 0  \
-			  --local-ints 6 \
-			  --approval-prog approval.teal \
-			  --clear-prog clear.teal
+      deploy 
 	  ;;
 
     restart|reset)

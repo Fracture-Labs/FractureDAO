@@ -5,14 +5,12 @@
 Create the sandbox (without fracture_sandbox copied)
 
 ```sh
-./sandbox up
-python3 -m venv .venv
-. .venv/bin/activate
-pip3 install pyteal
-pip3 install py-algorand-sdk
-python3 -m contract.contract
-python3 -m contract.deploy
+./sanbox up
+
+./deploy.sh
 ```
+
+which:
 
 Create the sandbox (with fracture*sandbox copied)
 \_Issue with M1 Mac*

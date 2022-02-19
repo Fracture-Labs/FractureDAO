@@ -119,7 +119,9 @@ def main() :
     path = os.path.dirname(os.path.abspath(__file__))
 
     admin, admin_sk = get_accounts()[0]
-    funder, funder_sk = get_accounts()[1]
+    trustee0, trustee0_sk = get_accounts()[1]
+    trustee1, trustee1_sk  = get_accounts()[2]
+    print("Freddie address: ", admin, " and sk: ", admin_sk)
 
     # compile program to TEAL assembly
     with open(os.path.join(path, "./approval.teal"), "r") as f:
@@ -144,12 +146,27 @@ def main() :
 
     print("Global state:", read_global_state(algod_client, admin, app_id))
 
-    print("Creating and funding Accounts...")
-    freddie, freddie_sk = create_and_fund_account(algod_client, funder_sk)
-    trustee0, trustee0_sk = create_and_fund_account(algod_client, funder_sk)
-    trustee1, trustee1_sk = create_and_fund_account(algod_client, funder_sk)
-    trustee2, trustee2_sk = create_and_fund_account(algod_client, funder_sk)
-    print("Accounts funded!")
+    trustees = [trustee0, trustee1]
+    threshold = 2
+    delegatee, delegatee_sk = get_accounts()[0]
 
+    print("--------------------------------------------")
+    print("Delegatee OptIn application......")
+
+    # new_wot(algod_client, app_id, threshold, trustees, delegatee, delegatee_sk)
+
+    # read local state of application
+    print("Delegatee local state:", read_local_state(algod_client, delegatee, app_id))
+
+    print("--------------------------------------------")
+    print("Signatures......")
+
+    # trustee0 signs for reveal
+    req_kfrags(algod_client, app_id, delegatee, trustee0, trustee0_sk)
+    print("Delegatee local state after 1 sig:", read_local_state(algod_client, delegatee, app_id))
+
+    # trustee1 signs for reveal
+    req_kfrags(algod_client, app_id, delegatee, trustee1, trustee1_sk)
+    print("Delegatee local state after 1 sig:", read_local_state(algod_client, delegatee, app_id))
     
 main()

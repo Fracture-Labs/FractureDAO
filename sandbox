@@ -3,15 +3,16 @@ set -e
 
 PARENT_DIR=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 SANDBOX_DIR=$PARENT_DIR/_sandbox
-KEYS_DIR=$PARENT_DIR/_keys
 if [ ! -d "$SANDBOX_DIR" ]; then
     echo "Pulling sandbox..."
     git clone https://github.com/algorand/sandbox.git $SANDBOX_DIR
 fi
 
-if [ ! -d "$KEYS_DIR" ]; then
-    mkdir _keys
-fi
-cp ./fracture_sandbox $SANDBOX_DIR/sandbox
+# uncomment to use the fracture_sandbox setup instead
+# KEYS_DIR=$PARENT_DIR/_keys
+# if [ ! -d "$KEYS_DIR" ]; then
+#     mkdir _keys
+# fi
+# cp ./fracture_sandbox $SANDBOX_DIR/sandbox
 
 $SANDBOX_DIR/sandbox "$@"

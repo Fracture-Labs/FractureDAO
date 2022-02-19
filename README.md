@@ -2,7 +2,20 @@
 
 ## Run Fracture DAO sandbox
 
-Create the sandbox, create new funded accounts and exports keys to those accounts and deploys contract
+Create the sandbox (without fracture_sandbox copied)
+
+```sh
+./sandbox up
+python3 -m venv .venv
+. .venv/bin/activate
+pip3 install pyteal
+pip3 install py-algorand-sdk
+python3 -m contract.contract
+python3 -m contract.deploy
+```
+
+Create the sandbox (with fracture*sandbox copied)
+\_Issue with M1 Mac*
 
 ```sh
 ./sandbox up

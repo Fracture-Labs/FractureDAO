@@ -1,5 +1,9 @@
 # FractureDAO
 
+This is part of Fracture Labs DAO specifically for Social Impact funding.
+
+For details please see [dio.earth](https://dio.earth)
+
 ## Run Fracture DAO sandbox
 
 Create the sandbox (without fracture_sandbox copied)
